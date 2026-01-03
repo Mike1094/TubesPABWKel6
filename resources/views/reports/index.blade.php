@@ -12,7 +12,7 @@
 
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+
             @if(session('success'))
                 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm" role="alert">
                     <p>{{ session('success') }}</p>
@@ -31,6 +31,7 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -43,6 +44,17 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $report->created_at->format('d M Y') }}
                                         </td>
+
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            @if($report->image)
+                                                <a href="{{ asset('storage/' . $report->image) }}" target="_blank" class="block w-16 h-16">
+                                                    <img src="{{ asset('storage/' . $report->image) }}" alt="Bukti Laporan" class="w-full h-full object-cover rounded border hover:opacity-75 transition">
+                                                </a>
+                                            @else
+                                                <span class="text-gray-400 text-xs italic">Tidak ada foto</span>
+                                            @endif
+                                        </td>
+
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                                             {{ $report->title }}
                                         </td>
@@ -51,8 +63,8 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 py-1 text-xs font-bold rounded-full
-                                                {{ $report->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                                   ($report->status == 'validated' ? 'bg-blue-100 text-blue-800' : 
+                                                {{ $report->status == 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                   ($report->status == 'validated' ? 'bg-blue-100 text-blue-800' :
                                                    ($report->status == 'completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')) }}">
                                                 {{ ucfirst(str_replace('_', ' ', $report->status)) }}
                                             </span>
