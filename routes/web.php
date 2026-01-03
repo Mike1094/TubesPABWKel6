@@ -36,4 +36,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
 });
 
+Route::resource('reports', ReportController::class)
+    ->only(['index', 'create', 'store', 'destroy']) // Tambahkan destroy
+    ->middleware(['auth', 'verified']);
+
+Route::resource('lost-found', LostFoundController::class)
+    ->only(['index', 'create', 'store', 'update', 'destroy']) // Tambahkan destroy
+    ->middleware(['auth', 'verified']);
+
 require __DIR__.'/auth.php';

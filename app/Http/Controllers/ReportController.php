@@ -65,4 +65,22 @@ class ReportController extends Controller
 
         return back()->with('success', 'Status laporan diperbarui!');
     }
+
+    public function destroy(Report $report)
+    {
+        // Pastikan hanya pemilik laporan atau admin yang bisa menghapus
+        if (Auth::id() !== $report->user_id && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Hapus gambar dari storage jika ada
+        if ($report->image) {
+            Storage::disk('public')->delete($report->image);
+        }
+
+        // Hapus data dari database
+        $report->delete();
+
+        return back()->with('success', 'Laporan berhasil dihapus.');
+    }
 }
