@@ -70,7 +70,7 @@ class LostFoundController extends Controller
 
         return redirect()->route('lost-found.index')->with('success', 'Barang berhasil dilaporkan!');
     }
-    
+
     public function update(Request $request, LostFoundItem $lostFoundItem)
     {
         // Allow Admin or Owner to resolve
@@ -91,5 +91,26 @@ class LostFoundController extends Controller
         $lostFoundItem->update(['status' => $request->status]);
 
         return back()->with('success', 'Status laporan barang diperbarui!');
+    }
+
+    public function destroy($id)
+    {
+        // Cari data secara manual
+        $lostFoundItem = LostFoundItem::findOrFail($id);
+
+        // Cek otorisasi
+        if (Auth::id() !== $lostFoundItem->user_id && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Hapus gambar jika ada
+        if ($lostFoundItem->image) {
+            Storage::disk('public')->delete($lostFoundItem->image);
+        }
+
+        // Hapus data
+        $lostFoundItem->delete();
+
+        return back()->with('success', 'Laporan barang berhasil dihapus.');
     }
 }
