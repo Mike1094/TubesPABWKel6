@@ -84,44 +84,51 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\LostFoundController;
 use App\Http\Controllers\TrafficController;
-use App\Http\Controllers\GateController;
-use App\Http\Controllers\AdminUserController; // Pastikan controller ini ada
+use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// ROUTE AUTH (Login diperlukan)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth']) // Hapus 'verified'
+    ->name('dashboard');
 
-    // 1. Dashboard Utama (Semua role bisa akses, controller yang memilah tampilan)
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// --- BAGIAN LAPORAN KERUSAKAN (REPORTS) ---
+Route::middleware('auth')->group(function () {
+    Route::resource('reports', ReportController::class);
+    Route::patch('reports/{report}/update-status', [ReportController::class, 'updateStatus'])
+        ->name('reports.update-status');
+});
 
-    // 2. Profile
+// --- BAGIAN BARANG HILANG (LOST FOUND) ---
+Route::middleware('auth')->group(function () {
+    Route::resource('lost-found', LostFoundController::class);
+    Route::patch('lost-found/{lostFoundItem}/update-status', [LostFoundController::class, 'updateStatus'])
+        ->name('lost-found.update-status');
+});
+
+// --- BAGIAN TRAFFIC & GATES ---
+Route::middleware('auth')->group(function () {
+    Route::get('/traffic', [TrafficController::class, 'index'])->name('traffic.index');
+    Route::post('/traffic', [TrafficController::class, 'store'])->name('traffic.store');
+    Route::patch('/gates/{gate}', [TrafficController::class, 'updateGate'])->name('gates.update');
+});
+
+// --- BAGIAN PROFILE USER ---
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-    // 3. FITUR BERSAMA (Laporan & Lost Found)
-    // Bisa diakses Admin, Satpam, Civitas, Warga.
-    // Kita gunakan middleware 'auth' saja, logika pembatasan edit/delete ada di Controller/Policy.
-    Route::resource('reports', ReportController::class);
-    Route::resource('lost-found', LostFoundController::class);
-
-    // 4. KHUSUS ADMIN (Manajemen User)
-    Route::middleware('role:admin')->group(function () {
-        Route::resource('users', AdminUserController::class);
-        // Validasi laporan juga biasanya di sini atau via method khusus
-        Route::patch('/reports/{report}/validate', [ReportController::class, 'validateReport'])->name('reports.validate');
-    });
-
-    // 5. KHUSUS SATPAM & ADMIN (Manajemen Gate/Traffic)
-    Route::middleware('role:admin,satpam')->group(function () {
-        Route::resource('traffic', TrafficController::class);
-        // Update status gate
-        Route::patch('/gates/{gate}/status', [GateController::class, 'updateStatus'])->name('gates.update-status');
-    });
+// --- BAGIAN ADMIN USER MANAGEMENT ---
+// Tambahkan middleware 'role:admin' di sini agar aman
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::get('/admin/users/create', [AdminUserController::class, 'create'])->name('admin.users.create');
+    Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
 });
 
 require __DIR__.'/auth.php';
