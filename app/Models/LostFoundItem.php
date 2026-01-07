@@ -9,7 +9,17 @@ class LostFoundItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'type', 'item_name', 'description', 'location', 'image', 'status', 'linked_lost_id'];
+    // Sesuaikan dengan nama kolom di database migration (Bahasa Indonesia)
+    protected $fillable = [
+        'user_id',
+        'jenis',           // update dari 'type'
+        'nama_barang',     // update dari 'item_name'
+        'deskripsi',       // update dari 'description'
+        'lokasi_ditemukan',// update dari 'location'
+        'foto',            // update dari 'image'
+        'status',
+        'linked_lost_id'
+    ];
 
     public function user()
     {

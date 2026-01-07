@@ -15,9 +15,13 @@ class GateSeeder extends Seeder
         $gates = ['Gerbang 1', 'Gerbang 2', 'Gerbang 3', 'Gerbang 4'];
 
         foreach ($gates as $gateName) {
+            // Gunakan 'nama_gerbang' dan 'status' sesuai struktur database terbaru
             Gate::firstOrCreate(
-                ['name' => $gateName],
-                ['is_open' => true]
+                ['nama_gerbang' => $gateName],
+                [
+                    'status' => 'open',      // Default status
+                    'traffic_status' => 'lancar' // Default traffic
+                ]
             );
         }
     }
